@@ -66,8 +66,9 @@ def create_app(test_config=None):
                 return render_template('404_page.html'), 404
         else:
             return "Employee id not provided", 400
-        
-
+    @app.route('/register', methods=['GET', 'POST'])
+    def register_user():
+        return render_template('register.html')
     return app
 
 # Flask app configuration

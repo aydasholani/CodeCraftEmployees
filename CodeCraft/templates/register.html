@@ -1,0 +1,79 @@
+{% extends 'base.html' %} {% block header %}
+<h1>{% block title %}Register{% endblock %}</h1>
+{% endblock %} {% block content %}
+<div class="container-sm">
+  <div class="row text-center">
+    <h1>Register</h1>
+  </div>
+  <div class="row">
+    <form method="post" class="row g-3 needs-validation novalidate">
+      <div class="form-group">
+        <label for="validationCustomName" class="form-label"> First and last name</label>
+        <input
+          name="name"
+          id="validationCustomName"
+          placeholder="Jane Doe"
+          class="form-control"
+          required
+          value="{{ request.form.name }}"
+        />
+        <div class="valid-tooltip">Looks good!</div>
+        <div class="invalid-feedback">Please fill in your full name</div>
+      </div>
+
+      <div class="form-group col-md-6">
+        <label for="validationCustomEmail" class="form-label">Email</label>
+        <input
+          type="email"
+          name="email"
+          id="validationCustomEmail"
+          class="form-control"
+          required
+        />
+        <div class="valid-tooltip">Looks good!</div>
+        <div class="invalid-feedback">Please fill in your email</div>
+      </div>
+
+      <div class="form-group col-md-6">
+        <label for="validationCustomPassword" class="form-label">Password</label>
+        <input
+          type="password"
+          name="validationCustomPassword"
+          id="password"
+          class="form-control"
+          required
+        />
+        <div class="valid-tooltip">Looks good!</div>
+        <div class="invalid-feedback">Please fill in your password</div>
+      </div>
+
+      <div class="form-group col-md-2">
+        <label for="validationCustomAge" class="form-label">Age</label>
+        <input
+          type="number"
+          name="age"
+          id="validationCustomAge"
+          class="form-control"
+        />
+        <div class="valid-tooltip">Looks good!</div>
+        <div class="invalid-feedback">Please fill in your age</div>
+      </div>
+
+      <div class="form-group col-md-10" class="form-label">
+        <label for="validationCustomPhone">Phone number</label>
+        <input
+          name="phone"
+          id="validationCustomPhone"
+          class="form-control"
+          required
+        />
+        <div class="valid-tooltip">Looks good!</div>
+        <div class="invalid-feedback">Please fill in your phone number</div>
+      </div>
+      <div class=" d-flex justify-content-center align-content-center">
+        <button type="submit" class="btn btn-primary">Register</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
