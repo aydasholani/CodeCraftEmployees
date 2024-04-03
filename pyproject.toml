@@ -1,0 +1,25 @@
+[project]
+name = "CodeCraftDatabase"
+author = [{name = "Ayda Sholani", email = "ayda.sholani@gmail.com"}]
+version = "1.0.0"
+description = "A flask app for user database for the company CodeCraft"
+readme = "README.md"
+dependencies = [
+    "flask",
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+filterwarnings = ["error"]
+
+[tool.coverage.run]
+branch = true
+source = ["CodeCraftDatabase", "tests"]
