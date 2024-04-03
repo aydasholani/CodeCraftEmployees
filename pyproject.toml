@@ -1,8 +1,9 @@
+
 [project]
-name = "CodeCraftDatabase"
+name = "CodeCraft"
 author = [{name = "Ayda Sholani", email = "ayda.sholani@gmail.com"}]
 version = "1.0.0"
-description = "A flask app for user database for the company CodeCraft"
+description = "Register employees"
 readme = "README.md"
 dependencies = [
     "flask",
@@ -22,4 +23,4 @@ filterwarnings = ["error"]
 
 [tool.coverage.run]
 branch = true
-source = ["CodeCraftDatabase", "tests"]
+source = ["CodeCraft", "tests"]
