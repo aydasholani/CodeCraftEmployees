@@ -28,7 +28,7 @@ class User(db.Model, UserMixin):
     confirmed_at = db.Column(db.DateTime())
     roles = db.relationship('Role', secondary=roles_users, backref=db.backref('user', lazy='dynamic'))
 
-class Person(db.Model):
+class Employee(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -40,14 +40,15 @@ class Person(db.Model):
     city = db.Column(db.String(100))
     state = db.Column(db.String(100))
     country = db.Column(db.String(30))
-    pictures = db.relationship('PersonPicture', back_populates='person', lazy=True)
+    pictures = db.relationship('EmployeePicture', back_populates='employee', lazy=True)
     
-class PersonPicture(db.Model):
+    
+class EmployeePicture(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     picture_size = db.Column(db.String(100))
     picture = db.Column(db.String(100))
-    person_id = db.Column(db.Integer, db.ForeignKey('person.id'), nullable=False)
-    person = db.relationship('Person', back_populates='pictures', lazy=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=False)
+    employee = db.relationship('Employee', back_populates='pictures', lazy=True)
 
 # Set up Flask-Security
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
@@ -61,7 +62,7 @@ def seed_data():
         user_datastore.create_user(email='user@mail.com', password=hash_password('password'), roles=[user_role], confirmed_at=datetime.datetime.now())
         user_datastore.create_user(email='admin@mail.com', password=hash_password('password'), roles=[admin_role], confirmed_at=datetime.datetime.now())
     
-    if Person.query.count() < NR_OF_PERSON_TO_SEED:
+    if Employee.query.count() < NR_OF_PERSON_TO_SEED:
         req = requests.get(f'https://randomuser.me/api/?results={NR_OF_PERSON_TO_SEED}&seed={SEED}')
         if req.status_code != 200:
             raise ValueError('Unable to fetch data! Status code not 200!')
@@ -69,27 +70,27 @@ def seed_data():
         data = req.json()
         list_of_persons = data['results']
 
-        for person in list_of_persons:
-            new_person = Person(
-                name = person['name']['first'] + ' ' + person['name']['last'],
-                email = person['email'],
-                phone = person['phone'],
-                age = person['dob']['age'],
-                street_name = person['location']['street']['name'],
-                street_number = person['location']['street']['number'],
-                postcode = person['location']['postcode'],
-                city = person['location']['city'],
-                state = person['location']['state'],
-                country = person['location']['country']
+        for employee in list_of_persons:
+            new_person = Employee(
+                name = employee['name']['first'] + ' ' + employee['name']['last'],
+                email = employee['email'],
+                phone = employee['phone'],
+                age = employee['dob']['age'],
+                street_name = employee['location']['street']['name'],
+                street_number = employee['location']['street']['number'],
+                postcode = employee['location']['postcode'],
+                city = employee['location']['city'],
+                state = employee['location']['state'],
+                country = employee['location']['country']
             )
             
             db.session.add(new_person)
             db.session.commit()
-            for key,val in person['picture'].items():
-                p = PersonPicture(
+            for key,val in employee['picture'].items():
+                p = EmployeePicture(
                         picture_size = key,
                         picture = val,
-                        person_id = new_person.id
+                        employee_id = new_person.id
                 )                
                 db.session.add(p)
             db.session.commit()

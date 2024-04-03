@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Employee Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-3">
+        <div class="pb-3">
+            <h1>{{ employee.name }}</h1>
+        </div>
+        <div class="col-md-4 themed-grid-col d-flex justify-content-center align-content-center">
+            <img class="employee-large-image" src="{{ employee_image }}" alt="">
+        </div>
+        <div class="col-md-8 ml-auto themed-grid-col">
+                <div class="card">
+                    <div class="card-body">
+                      <p class="card-text">Email: {{ employee.email }}</p>
+                      <p class="card-text">Phone: {{ employee.phone }}</p>
+                      <p class="card-text">Age: {{ employee.age }}</p>
+                      <p class="card-text">Address: {{ employee.street_number }}, {{ employee.street_name }}, {{ employee.city }}, {{ employee.state }}, {{ employee.country }}</p>
+                    </div>
+                  </div>
+            </div>
+        </div>
+    </div>
+   
+    
+{% endblock %}
