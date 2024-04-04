@@ -25,7 +25,20 @@ FLASK_APP = CodeCraftDatabase
 FLASK_DEBUG = True
 FLASK_PORT = 5000
 ```
+## Styling
 
+Open terminal in static folder
+```bash
+$ cd CodeCraft/static
+```
+Install dependencies
+```bash
+$ npm i
+```
+
+```bash
+$ npm run compile_sass
+```
 # Create initial database with tables and data
 ```bash
 $ flask init-db

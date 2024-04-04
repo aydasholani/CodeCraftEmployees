@@ -1,0 +1,28 @@
+@use 'custom';
+
+html, body {
+  height: 100%;
+}
+body{
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+main {
+  background-color: #919aa1;
+  height: 100%;
+}
+
+footer {
+  // margin-top: auto;
+  // height: 100px;
+  background-color: pink;
+}
+
+.employee-large-image {
+  max-width: 100%;
+  height: auto;
+  -webkit-transform: scale(0.999);
+  transform: scale(0.999);
+  image-rendering: auto;
+}
