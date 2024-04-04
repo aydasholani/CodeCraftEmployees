@@ -1,8 +1,8 @@
 import requests
-import json
 from flask_sqlalchemy import SQLAlchemy
 from flask_security import RoleMixin, UserMixin, SQLAlchemyUserDatastore, hash_password
-import datetime  # Added datetime import
+import datetime
+
 
 NR_OF_PERSON_TO_SEED = 200
 SEED = 'Unicorn'
@@ -22,10 +22,13 @@ class Role(db.Model, RoleMixin):
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True)
+    username = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     active = db.Column(db.Boolean())
     fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
     confirmed_at = db.Column(db.DateTime())
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.id')) 
+    employee = db.relationship('Employee', backref=db.backref('user', lazy='dynamic'), uselist=False)
     roles = db.relationship('Role', secondary=roles_users, backref=db.backref('user', lazy='dynamic'))
 
 class Employee(db.Model):
@@ -58,9 +61,7 @@ def seed_data():
     user_role = user_datastore.find_or_create_role(name='User')
     
     if not User.query.first():
-        user_datastore.create_user(email='admin_user@mail.com', password=hash_password('password'), roles=[admin_role, user_role], confirmed_at=datetime.datetime.now())
-        user_datastore.create_user(email='user@mail.com', password=hash_password('password'), roles=[user_role], confirmed_at=datetime.datetime.now())
-        user_datastore.create_user(email='admin@mail.com', password=hash_password('password'), roles=[admin_role], confirmed_at=datetime.datetime.now())
+        user_datastore.create_user(email='codecraft@mail.com', username="codecraft", password=hash_password('password'), roles=[admin_role, user_role], confirmed_at=datetime.datetime.now())
     
     if Employee.query.count() < NR_OF_PERSON_TO_SEED:
         req = requests.get(f'https://randomuser.me/api/?results={NR_OF_PERSON_TO_SEED}&seed={SEED}')
@@ -71,7 +72,9 @@ def seed_data():
         list_of_persons = data['results']
 
         for employee in list_of_persons:
-            new_person = Employee(
+            codecraft_mail = employee['email'].split('@')[0] + '@codecraft.com'
+            username = employee['email'].split('@')[0]
+            new_employee = Employee(
                 name = employee['name']['first'] + ' ' + employee['name']['last'],
                 email = employee['email'],
                 phone = employee['phone'],
@@ -84,13 +87,25 @@ def seed_data():
                 country = employee['location']['country']
             )
             
-            db.session.add(new_person)
+            #  Add employee to the database
+            db.session.add(new_employee)
+            db.session.commit()
+            
+            # Create a user account for the employee
+            user_datastore.create_user(email=codecraft_mail, username=username, password=hash_password('password'), roles=[user_role], confirmed_at=datetime.datetime.now())
+            db.session.commit()
+            
+            user = User.query.filter_by(username=username).first()
+            if user:
+                user.employee_id = new_employee.id
+                db.session.commit()
+            
             db.session.commit()
             for key,val in employee['picture'].items():
                 p = EmployeePicture(
                         picture_size = key,
                         picture = val,
-                        employee_id = new_person.id
+                        employee_id = new_employee.id
                 )                
                 db.session.add(p)
             db.session.commit()
