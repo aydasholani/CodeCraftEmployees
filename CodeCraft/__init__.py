@@ -1,13 +1,11 @@
 import datetime
 import os
-import re
 from flask import Flask, flash, redirect, render_template, request, url_for
 from . import db_conn
 from .models import user_datastore, Employee, User, db
 from .employees import get_paginated_employees, get_employee_pictures
-from flask_security import Security, hash_password
-from flask_login import login_user, current_user, logout_user, login_required
-from flask_login import LoginManager
+from flask_security import Security, hash_password, login_required, roles_accepted, roles_required
+
 
 
 def create_app(test_config=None):
@@ -32,8 +30,7 @@ def create_app(test_config=None):
 
     @app.route("/")
     def index():
-        text = "Welcome to CodeCraft – Where Innovation Meets Ingenuity!"
-        return render_template("index.html", text=text)
+        return render_template("index.html")
 
     @app.route("/about")
     def about():
@@ -99,11 +96,37 @@ def create_app(test_config=None):
                     flash(f"Welcome to CodeCraft! Please login to continue.")
                     return redirect(url_for("login_user"))
         return render_template("register.html", errors=errors)
-
+    
     @app.route("/login", methods=["GET", "POST"])
-    def login():
+    def login_user():
         errors = {}
-        return render_template("login.html", errors=errors)
+        if request.method == "POST":
+            username = request.form.get("username")
+            password = request.form.get("password")
+            user = User.query.filter_by(username=username).first()
+            
+            if not username or not password:
+                if not username:
+                    errors['username'] = "Please fill in username"
+                if not password:
+                    errors['password'] = flash("Please fill in password")
+            else:
+                if not user:
+                    errors['username'] = "Username does not exist"
+                else:
+                    if user.check_password(password):
+                        login_user(user, remember=True)
+                        return redirect(url_for("dashboard"))
+                    else:
+                        errors['password'] = "Invalid password"
+
+        return render_template("login_user.html", errors=errors)
+    
+    
+    @app.route('/dashboard')
+    @login_required
+    def dashboard():
+        return render_template("dashboard.html")
 
     @app.route("/logout", methods=["GET", "POST"])
     def logout_user():
@@ -114,8 +137,6 @@ def create_app(test_config=None):
 
 # Flask app configuration
 def configure_app(app, test_config):
-    login_manager = LoginManager(app)
-    login_manager.login_view = "login"
     app.config.from_mapping(
         SECRET_KEY=os.getenv("SECRET_KEY"),
         SECURITY_PASSWORD_SALT=os.getenv("SECURITY_PASSWORD_SALT"),
