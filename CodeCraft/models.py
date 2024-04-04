@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_security import RoleMixin, UserMixin, SQLAlchemyUserDatastore, hash_password
 import datetime
 
-
 NR_OF_PERSON_TO_SEED = 200
 SEED = 'Unicorn'
 
@@ -22,15 +21,15 @@ class Role(db.Model, RoleMixin):
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True)
-    username = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False )
     active = db.Column(db.Boolean())
     fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
     confirmed_at = db.Column(db.DateTime())
     employee_id = db.Column(db.Integer, db.ForeignKey('employee.id')) 
     employee = db.relationship('Employee', backref=db.backref('user', lazy='dynamic'), uselist=False)
     roles = db.relationship('Role', secondary=roles_users, backref=db.backref('user', lazy='dynamic'))
-
+    
 class Employee(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -45,7 +44,6 @@ class Employee(db.Model):
     country = db.Column(db.String(30))
     pictures = db.relationship('EmployeePicture', back_populates='employee', lazy=True)
     
-    
 class EmployeePicture(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     picture_size = db.Column(db.String(100))
@@ -59,9 +57,11 @@ user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 def seed_data():
     admin_role = user_datastore.find_or_create_role(name='Admin')
     user_role = user_datastore.find_or_create_role(name='User')
+    employee_role = user_datastore.find_or_create_role(name='Employee')
     
     if not User.query.first():
-        user_datastore.create_user(email='codecraft@mail.com', username="codecraft", password=hash_password('password'), roles=[admin_role, user_role], confirmed_at=datetime.datetime.now())
+        user_datastore.create_user(email='admin@codecraft.com', username="admin", password=hash_password('password'), roles=[admin_role, user_role], confirmed_at=datetime.datetime.now())
+        user_datastore.create_user(email='user@codecraft.com', username="user", password=hash_password('password'), roles=[user_role], confirmed_at=datetime.datetime.now())
     
     if Employee.query.count() < NR_OF_PERSON_TO_SEED:
         req = requests.get(f'https://randomuser.me/api/?results={NR_OF_PERSON_TO_SEED}&seed={SEED}')
@@ -72,8 +72,6 @@ def seed_data():
         list_of_persons = data['results']
 
         for employee in list_of_persons:
-            codecraft_mail = employee['email'].split('@')[0] + '@codecraft.com'
-            username = employee['email'].split('@')[0]
             new_employee = Employee(
                 name = employee['name']['first'] + ' ' + employee['name']['last'],
                 email = employee['email'],
@@ -89,18 +87,18 @@ def seed_data():
             
             #  Add employee to the database
             db.session.add(new_employee)
+            
+            username = employee['email'].split('@')[0]
+            codecraft_mail = username + '@codecraft.com'
+            hashed_password = hash_password('password')
+            user = user_datastore.create_user(email=codecraft_mail, username=username, password=hashed_password, roles=[employee_role], confirmed_at=datetime.datetime.now())
+            
+            # Associate the user with the employee
+            user.employee = new_employee
+            
+            # Commit changes to the database
             db.session.commit()
             
-            # Create a user account for the employee
-            user_datastore.create_user(email=codecraft_mail, username=username, password=hash_password('password'), roles=[user_role], confirmed_at=datetime.datetime.now())
-            db.session.commit()
-            
-            user = User.query.filter_by(username=username).first()
-            if user:
-                user.employee_id = new_employee.id
-                db.session.commit()
-            
-            db.session.commit()
             for key,val in employee['picture'].items():
                 p = EmployeePicture(
                         picture_size = key,
