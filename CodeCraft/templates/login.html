@@ -1,0 +1,55 @@
+{% extends 'base.html' %} 
+{% from "security/_macro.html" import render_field_with_errors, render_field, render_field_errors, render_form_errors, prop_next %}
+
+{% block title %}Login{% endblock %} 
+{% block content %}
+
+<div class="container col-xl-10 col-xxl-8 px-4 py-5">
+  <div class="row align-items-center g-lg-5 py-5">
+    <div class="col-lg-7 text-center text-lg-start">
+      <h1 class="display-5 fw lh-1 text-body-emphasis mb-3"> WELCOME TO CODECRAFT</h1>
+      <h1>
+        <small class="text-body-secondary">– Where creativity sparks innovation at every turn!</small>
+      </h1>
+    </div>
+    <div class="col-md-10 mx-auto col-lg-5 ">
+      <div class="row ">
+        <h2 class="text-body-secondary">Login</h2>
+      </div>
+      <form action="{{ url_for('security.login') }}" method="post" name="login_user_form" class="p-4 p-md-5 border rounded-3 bg-body-tertiary">
+        {{ login_user_form.hidden_tag() }}
+        {{ render_form_errors(login_user_form) }}
+    
+          {% if login_user_form.username and "username" in identity_attributes %}
+            {{ render_field_with_errors(login_user_form.username, class='form-control') }}
+          {% endif %}
+ 
+
+          {{ render_field_with_errors(login_user_form.password, class='form-control') }}
+ 
+
+        <div class="checkbox">
+          <label>
+            {{ render_field_with_errors(login_user_form.remember) }}
+            {{ render_field_errors(login_user_form.csrf_token) }}
+          </label>
+        </div>
+        {{ render_field(login_user_form.submit, class='btn btn-outline-light') }}
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+              {% for message in messages %}
+              <small>
+                {{ message }}
+              </small>
+              {% endfor %}
+          {% endif %}
+        {% endwith %}
+      <hr class="mt-4">
+      <small>Don't have an account? 
+        <a href="{{url_for('register')}}" class="log-reg-link">Register</a>
+      </small>   
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
