@@ -111,14 +111,23 @@ def create_app(test_config=None):
                 return redirect(url_for("security.login"))
 
         return render_template("register.html")
+    
     @app.route('/dashboard')
     @login_required
     def dashboard():
         return render_template('dashboard.html')
+    
+    @app.route('/error')
+    def error():
+        return render_template('error.html')
+    
     @app.route("/admin")
     @roles_required("Admin")
     def admin():
+        if not security.current_user.is_authenticated:
+            return redirect(url_for("error"))
         return render_template("admin.html")
+    
     
     @app.route("/logout")
     def logout():
@@ -139,7 +148,7 @@ def configure_app(app, test_config):
         SECURITY_LOGOUT_URL="/logout",
         SECURITY_LOGIN_USER_TEMPLATE="login.html",
         SECURITY_POST_LOGIN_VIEW="/dashboard",
-        SECURITY_UNAUTHORIZED_VIEW="404_page.html",
+        SECURITY_UNAUTHORIZED_VIEW="/error",
         SECURITY_USER_IDENTITY_ATTRIBUTES=[
             {
                 "username": {
