@@ -11736,23 +11736,25 @@ th {
   color: inherit;
 }
 
+*, ::after, ::before {
+  margin: 0;
+  padding: 0;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
 html, body {
   height: 100%;
+  overflow-x: hidden;
 }
 
 body {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-}
-
-main {
-  background-color: #919aa1;
-  height: 100%;
 }
 
 footer {
-  background-color: pink;
+  margin-top: auto;
 }
 
 .employee-large-image {
@@ -11761,6 +11763,40 @@ footer {
   -webkit-transform: scale(0.999);
   transform: scale(0.999);
   image-rendering: auto;
+}
+
+iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 56.4971751412vw;
+}
+
+.mb-3 label {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.log-reg-link {
+  color: #1f9bcf;
+}
+.log-reg-link:hover {
+  color: #20c997;
+}
+
+#over {
+  font-size: 10rem;
+  position: absolute;
+  top: 50%;
+  left: auto;
+  z-index: 2;
+  text-transform: uppercase;
+}
+
+.card-img {
+  max-height: 300px;
+  object-fit: contain;
 }
 
 /*# sourceMappingURL=main.css.map */
