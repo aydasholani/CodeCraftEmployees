@@ -1,19 +1,38 @@
 import datetime
 import os
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import (
+    Flask,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+    session,
+)
 from . import db_conn
-from .models import user_datastore, Employee, User, db
+from .models import user_datastore, Employee, User
 from .employees import get_paginated_employees, get_employee_pictures
-from flask_security import Security, hash_password, login_required, roles_accepted, roles_required
-
+from flask_security import (
+    Security,
+    hash_password,
+    login_required,
+    login_user,
+    current_user,
+    logout_user,
+    roles_required,
+    uia_username_mapper,
+)
+import flask_babel
 
 
 def create_app(test_config=None):
     # Create and configure app
     app = Flask(__name__, instance_relative_config=True)
     configure_app(app, test_config)
-    security = Security(app, user_datastore)
+    Security(app, user_datastore)
     db_conn.init_app(app)
+
+    flask_babel.Babel(app)
 
     if test_config is None:
         # Load the instance config, if it exists, when not testing
@@ -71,7 +90,7 @@ def create_app(test_config=None):
             return "Employee id not provided", 400
 
     @app.route("/register", methods=["GET", "POST"])
-    def register_user():
+    def register():
         errors = {}
         if request.method == "POST":
             username = request.form.get("username")
@@ -79,58 +98,41 @@ def create_app(test_config=None):
             existing_user = User.query.filter_by(username=username).first()
 
             if existing_user:
-                errors['username'] = "Username already exists"
-    
+                errors["username"] = "Username already exists"
+
             elif not username or not password:
                 if not username:
-                    errors['username'] = "Please fill in username"
+                    errors["username"] = "Please fill in username"
                 if not password:
-                    errors['password'] = "Please fill in password"
+                    errors["password"] = "Please fill in password"
 
             else:
-                codecraft_mail = username + '@codecraft.com'
+                codecraft_email = username + "@codecraft.com"
                 hashed_password = hash_password(password)
-                user_role = user_datastore.find_or_create_role(name='User')
-                new_user = user_datastore.create_user(email=codecraft_mail, username=username, password=hashed_password, roles=[user_role], confirmed_at=datetime.datetime.now())
+                user_role = user_datastore.find_or_create_role(name="User")
+                new_user = user_datastore.create_user(
+                    email=codecraft_email,
+                    username=username,
+                    password=hashed_password,
+                    roles=[user_role],
+                    confirmed_at=datetime.datetime.now(),
+                )
                 if new_user:
                     flash(f"Welcome to CodeCraft! Please login to continue.")
-                    return redirect(url_for("login_user"))
+                    return redirect(url_for("security.login"))
         return render_template("register.html", errors=errors)
-    
-    @app.route("/login", methods=["GET", "POST"])
-    def login_user():
-        errors = {}
-        if request.method == "POST":
-            username = request.form.get("username")
-            password = request.form.get("password")
-            user = User.query.filter_by(username=username).first()
-            
-            if not username or not password:
-                if not username:
-                    errors['username'] = "Please fill in username"
-                if not password:
-                    errors['password'] = flash("Please fill in password")
-            else:
-                if not user:
-                    errors['username'] = "Username does not exist"
-                else:
-                    if user.check_password(password):
-                        login_user(user, remember=True)
-                        return redirect(url_for("dashboard"))
-                    else:
-                        errors['password'] = "Invalid password"
 
-        return render_template("login_user.html", errors=errors)
-    
-    
-    @app.route('/dashboard')
+    @app.route("/admin")
     @login_required
-    def dashboard():
-        return render_template("dashboard.html")
-
-    @app.route("/logout", methods=["GET", "POST"])
-    def logout_user():
-        return render_template("logout.html")
+    @roles_required("Admin")
+    def admin():
+        return render_template("admin.html")
+    
+    @app.route("/logout")
+    def logout():
+        logout_user()
+        flash("You have been logged out successfully.", "success")
+        return render_template("loading.html")
 
     return app
 
@@ -142,11 +144,22 @@ def configure_app(app, test_config):
         SECURITY_PASSWORD_SALT=os.getenv("SECURITY_PASSWORD_SALT"),
         SQLALCHEMY_DATABASE_URI=f"sqlite:///{os.path.join(app.instance_path, os.getenv('LOCAL_DATABASE_URI'))}",
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        SECURITY_LOGOUT_URL="/logout",
+        SECURITY_LOGIN_USER_TEMPLATE="login.html",
+        SECURITY_POST_LOGIN_VIEW="/admin",
+        SECURITY_UNAUTHORIZED_VIEW="404_page.html",
+        SECURITY_USER_IDENTITY_ATTRIBUTES=[
+            {
+                "username": {
+                    "mapper": uia_username_mapper,
+                    "case_insensitive": True,
+                }
+            }
+        ],
+        SECURITY_USERNAME_ENABLE=True,
     )
     if test_config is None:
-        app.config.from_pyfile(
-            "config.py", silent=True
-        )  
+        app.config.from_pyfile("config.py", silent=True)
     else:
         app.config.update(test_config)
     try:
