@@ -1,62 +1,58 @@
-{% extends 'base.html' %} 
-{% block title %}Register{% endblock %} 
-{% block content %}
+{% extends 'base.html' %} {% block title %}Register{% endblock %} {% block
+content %}
 
-
-
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-6 text-bg-light m-4">
-      <h2 class="text-center mb-2 mt-4">Register</h2>
-      <form action="" method="POST" class="g-3 p-5 mt-2 needs-validation" novalidate>
-        <div class="form-group col mb-4"">
-          <label for="username" class="form-label">Username</label>
+<div class="container col-xl-10 col-xxl-8 px-4 py-5">
+  <div class="row align-items-center g-lg-5 py-5">
+    <div class="col-md-10 mx-auto col-lg-5">
+      <div class="row">
+        <h2 class="text-body-secondary">Register</h2>
+      </div>
+      <form
+        action=""
+        method="POST"
+        class="p-4 p-md-5 border rounded-3 bg-body-tertiary"
+      >
+        <div class="mb-3">
+          <label for="username">Username</label>
           <input
             type="text"
             name="username"
             max="120"
             id="username"
             value="{{ request.form.username }}"
-            class="form-control {% if 'username' in errors %}is-invalid{% endif %}"
+            class="form-control"
             required
           />
-          <!-- Validation messages -->
-          <div class="invalid-feedback">{{ errors['username'] }}</div>
-          <div class="valid-feedback">Looks good!</div>
         </div>
 
-        <div class="form-group col">
-          <label for="password" class="form-label">Password</label>
+        <div class="mb-3">
+          <label for="password">Password</label>
           <input
             type="password"
             name="password"
             value="{{ request.form.password }}"
             id="password"
-            class="form-control {% if 'password' in errors %}is-invalid{% endif %}"
+            class="form-control "
             required
           />
-          <!-- Validation messages -->
-          <div class="invalid-feedback">{{ errors['password'] }}</div>
-          <div class="valid-feedback">Looks good!</div>
+
         </div>
         <div class="col">
-          {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-              {% for category, message in messages %}
-                <p class="text-danger-emphasis">.{{ message }}</p>
-              {% endfor %}
-            {% endif %}
-          {% endwith %}
-   
+          {% with messages = get_flashed_messages() %} {% if messages %} {% for
+          message in messages %}
+          <small> {{ message }} </small>
+          {% endfor %} {% endif %} {% endwith %}
         </div>
-        <div class="form-group col g-3 mt-4 ">
-          <input class="btn btn-outline-primary" type="submit" value="Submit" />
+        <div class="form-group col g-3 mt-4">
+          <input class="btn btn-outline-light" type="submit" value="Submit" />
         </div>
-        <div class="row mt-4">
-          <small>Already have an account? 
-            <a href="{{ url_for('login_user') }}">Login</a>
-          </small>        
-        </div>
+        <hr class="mt-4" />
+        <small
+          >Already have an account?
+          <a href="{{ url_for('security.login') }}" class="log-reg-link"
+            >Login</a
+          >
+        </small>
       </form>
     </div>
   </div>

@@ -1,0 +1,10 @@
+{% extends "base.html" %} 
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container col-xl-10 col-xxl-8 px-4 py-5">
+  <div class="row align-items-center justify-content-center g-lg-5 py-5">
+  <h1 class="text-white">Welcome to the dashboard {{ current_user.username }} </h1>
+  </div>
+</div>
+{% endblock %}

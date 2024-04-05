@@ -22,7 +22,6 @@ class Role(db.Model, RoleMixin):
     
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), unique=True)
     username = db.Column(db.String(100), unique=True, index=True)
     password = db.Column(db.String(100), nullable=False )
     active = db.Column(db.Boolean())
@@ -54,14 +53,14 @@ class EmployeePicture(db.Model):
 
 # Set up Flask-Security
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-
+    
 def seed_data():
     admin_role = user_datastore.find_or_create_role(name='Admin')
     user_role = user_datastore.find_or_create_role(name='User')
     
     if not User.query.first():
-        user_datastore.create_user(email='admin@codecraft.com', username="admin", password=hash_password('password'), roles=[admin_role, user_role], confirmed_at=datetime.datetime.now())
-        user_datastore.create_user(email='user@codecraft.com', username="user", password=hash_password('password'), roles=[user_role], confirmed_at=datetime.datetime.now())
+        user_datastore.create_user(username="admin", password=hash_password('password'), roles=[admin_role, user_role], confirmed_at=datetime.datetime.now())
+        user_datastore.create_user(username="user", password=hash_password('password'), roles=[user_role], confirmed_at=datetime.datetime.now())
     
     if Employee.query.count() < NR_OF_PERSON_TO_SEED:
         req = requests.get(f'https://randomuser.me/api/?results={NR_OF_PERSON_TO_SEED}&seed={SEED}')

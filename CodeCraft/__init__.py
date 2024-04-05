@@ -1,5 +1,6 @@
 import datetime
 import os
+import secrets
 from flask import (
     Flask,
     flash,
@@ -10,14 +11,12 @@ from flask import (
     session,
 )
 from . import db_conn
-from .models import user_datastore, Employee, User
+from .models import user_datastore, Employee, User, db
 from .employees import get_paginated_employees, get_employee_pictures
 from flask_security import (
     Security,
     hash_password,
     login_required,
-    login_user,
-    current_user,
     logout_user,
     roles_required,
     uia_username_mapper,
@@ -29,7 +28,7 @@ def create_app(test_config=None):
     # Create and configure app
     app = Flask(__name__, instance_relative_config=True)
     configure_app(app, test_config)
-    Security(app, user_datastore)
+    security = Security(app, user_datastore)
     db_conn.init_app(app)
 
     flask_babel.Babel(app)
@@ -91,39 +90,32 @@ def create_app(test_config=None):
 
     @app.route("/register", methods=["GET", "POST"])
     def register():
-        errors = {}
         if request.method == "POST":
             username = request.form.get("username")
             password = request.form.get("password")
             existing_user = User.query.filter_by(username=username).first()
-
+            
             if existing_user:
-                errors["username"] = "Username already exists"
-
-            elif not username or not password:
-                if not username:
-                    errors["username"] = "Please fill in username"
-                if not password:
-                    errors["password"] = "Please fill in password"
-
+                flash('Username already exists')
             else:
-                codecraft_email = username + "@codecraft.com"
                 hashed_password = hash_password(password)
-                user_role = user_datastore.find_or_create_role(name="User")
+                fs_uniquifier = secrets.token_urlsafe(32)  # Generate a unique string
                 new_user = user_datastore.create_user(
-                    email=codecraft_email,
                     username=username,
                     password=hashed_password,
-                    roles=[user_role],
+                    fs_uniquifier=fs_uniquifier,  # Provide the generated uniquifier
                     confirmed_at=datetime.datetime.now(),
                 )
-                if new_user:
-                    flash(f"Welcome to CodeCraft! Please login to continue.")
-                    return redirect(url_for("security.login"))
-        return render_template("register.html", errors=errors)
+                db.session.commit()
+                flash(f"Welcome to CodeCraft! Please login to continue.")
+                return redirect(url_for("security.login"))
 
-    @app.route("/admin")
+        return render_template("register.html")
+    @app.route('/dashboard')
     @login_required
+    def dashboard():
+        return render_template('dashboard.html')
+    @app.route("/admin")
     @roles_required("Admin")
     def admin():
         return render_template("admin.html")
@@ -146,7 +138,7 @@ def configure_app(app, test_config):
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SECURITY_LOGOUT_URL="/logout",
         SECURITY_LOGIN_USER_TEMPLATE="login.html",
-        SECURITY_POST_LOGIN_VIEW="/admin",
+        SECURITY_POST_LOGIN_VIEW="/dashboard",
         SECURITY_UNAUTHORIZED_VIEW="404_page.html",
         SECURITY_USER_IDENTITY_ATTRIBUTES=[
             {
