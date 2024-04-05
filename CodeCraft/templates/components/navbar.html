@@ -22,7 +22,6 @@
       </ul>
       <ul class="d-flex navbar-nav">
         {% if current_user.is_authenticated %}
-          <small>{{ current_user.username }}</small>
           {{nav_link('logout', 'Logout')}}
         {% else %}
         {{nav_link('security.login','Login')}} 
