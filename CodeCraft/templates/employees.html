@@ -3,6 +3,8 @@
 {% block title %}Employees{% endblock %}
 
 {% block content %}
+<div class="container col-xl-10 col-xxl-8 px-4 py-5">
+  <div class="row align-items-center justify-content-center g-lg-5 py-5">
 <div class="container">
   <div class="row">
     <form method="GET" class="form g-3" id="search-form" autocomplete="off">
@@ -72,6 +74,8 @@
     <p>No employees found. Please try searching again.</p>
 
     {% endif %}
+</div>
+</div>
 </div>
 
 {% endblock %}
