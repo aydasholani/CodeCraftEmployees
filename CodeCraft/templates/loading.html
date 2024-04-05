@@ -1,0 +1,11 @@
+
+  
+    <h1>Logging out...</h1>
+    <!-- You can add a loading spinner or any other content here -->
+
+    <script>
+      // Set a timer to redirect the user after 3 seconds
+      setTimeout(function() {
+          window.location.href = "{{ url_for('index') }}";
+      }, 3000); // 3000 milliseconds = 3 seconds
+  </script>

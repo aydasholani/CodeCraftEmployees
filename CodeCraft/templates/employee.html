@@ -1,28 +1,37 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block title %}Employee Details{% endblock %} {%
+block content %}
 
-{% block title %}Employee Details{% endblock %}
+<div class="container col-xl-10 col-xxl-8 px-4 py-5">
+  <div class="row align-items-center justify-content-center g-lg-5 py-5">
+    <div class="col-7">
+      <div class="bs-component">
+        <div class="card border-light mb-3">
+          <h3 class="card-header">{{ employee.name }}</h3>
+          <div class="card-body">
+            <h5 class="card-title">{{ employee.country }}</h5>
+            <h6 class="card-subtitle text-muted mt-2">{{ employee.email }}</h6>
+          </div>
 
-{% block content %}
-<div class="container">
-    <div class="row mb-3">
-        <div class="pb-3">
-            <h1>{{ employee.name }}</h1>
+          <img
+            class="card-img"
+            src="{{ employee_image }}"
+            alt="{{ employee.id }}"
+          />
+
+          <ul class="list-group list-group-flush mb-4">
+            <li class="list-group-item">Age: {{ employee.age }}</li>
+            <li class="list-group-item">Nr: {{ employee.phone }}</li>
+            <li class="list-group-item">
+              Adress:
+              <div>{{ employee.street_name }} {{ employee.street_number }}</div>
+
+              {{ employee.postcode }} {{ employee.city }} {{ employee.state }}
+            </li>
+          </ul>
         </div>
-        <div class="col-md-4 themed-grid-col d-flex justify-content-center align-content-center">
-            <img class="employee-large-image" src="{{ employee_image }}" alt="">
-        </div>
-        <div class="col-md-8 ml-auto themed-grid-col">
-                <div class="card">
-                    <div class="card-body">
-                      <p class="card-text">Email: {{ employee.email }}</p>
-                      <p class="card-text">Phone: {{ employee.phone }}</p>
-                      <p class="card-text">Age: {{ employee.age }}</p>
-                      <p class="card-text">Address: {{ employee.street_number }}, {{ employee.street_name }}, {{ employee.city }}, {{ employee.state }}, {{ employee.country }}</p>
-                    </div>
-                  </div>
-            </div>
-        </div>
+      </div>
     </div>
-   
-    
-{% endblock %}
+  </div>
+  </div>
+  {% endblock %}
+

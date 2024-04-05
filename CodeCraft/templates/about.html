@@ -1,14 +1,25 @@
 {% extends "base.html" %}
+{% from "security/_macro.html" import render_field_with_errors, render_field, render_field_errors, render_form_errors, prop_next %}
 
 
 {% block title %}About us{% endblock %}
 
 
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col">
-      <p>{{ text }}</p>
+<div class="text-primary-light px-4 py-5 text-center">
+  <div class="py-5">
+    <h1 class="display-5 fw-bold text-white">CodeCraft</h1>
+    <div class="col-lg-6 mx-auto">
+      <p class="fs-5 mb-4">Welcome to CodeCraft, where innovation thrives and creativity knows no bounds! At CodeCraft, we're not just a company; we're a community of passionate developers, designers, and visionaries dedicated to pushing the boundaries of technology and bringing revolutionary ideas to life.
+
+        Our team is comprised of forward-thinkers and problem-solvers, united by our shared love for technology and our commitment to delivering exceptional solutions. Whether it's developing cutting-edge software, designing captivating user interfaces, or architecting robust systems, we're always at the forefront of innovation.
+        
+        With a collaborative spirit and a culture of continuous learning, we embrace challenges as opportunities for growth and exploration. Our dynamic environment fosters creativity and encourages experimentation, empowering every member of our team to unleash their full potential and turn ideas into reality.
+        
+        At CodeCraft, we believe that the future belongs to those who dare to dream, to those who are bold enough to challenge the status quo, and to those who are driven by a relentless pursuit of excellence. Join us on our journey as we shape the future of technology and leave our mark on the world. Welcome to CodeCraft – where innovation meets possibility, and the sky is the limit!
+        </p>
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+      </div>
     </div>
   </div>
 </div>

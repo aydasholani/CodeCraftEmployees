@@ -1,7 +1,9 @@
+from operator import index
 import requests
 from flask_sqlalchemy import SQLAlchemy
 from flask_security import RoleMixin, UserMixin, SQLAlchemyUserDatastore, hash_password
 import datetime
+
 
 NR_OF_PERSON_TO_SEED = 200
 SEED = 'Unicorn'
@@ -17,17 +19,14 @@ roles_users = db.Table('roles_users',
 class Role(db.Model, RoleMixin):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80), unique=True)
-
+    
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), unique=True)
-    username = db.Column(db.String(100), unique=True, nullable=False)
+    username = db.Column(db.String(100), unique=True, index=True)
     password = db.Column(db.String(100), nullable=False )
     active = db.Column(db.Boolean())
     fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
     confirmed_at = db.Column(db.DateTime())
-    employee_id = db.Column(db.Integer, db.ForeignKey('employee.id')) 
-    employee = db.relationship('Employee', backref=db.backref('user', lazy='dynamic'), uselist=False)
     roles = db.relationship('Role', secondary=roles_users, backref=db.backref('user', lazy='dynamic'))
     
 class Employee(db.Model):
@@ -44,6 +43,7 @@ class Employee(db.Model):
     country = db.Column(db.String(30))
     pictures = db.relationship('EmployeePicture', back_populates='employee', lazy=True)
     
+    
 class EmployeePicture(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     picture_size = db.Column(db.String(100))
@@ -53,15 +53,14 @@ class EmployeePicture(db.Model):
 
 # Set up Flask-Security
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-
+    
 def seed_data():
     admin_role = user_datastore.find_or_create_role(name='Admin')
     user_role = user_datastore.find_or_create_role(name='User')
-    employee_role = user_datastore.find_or_create_role(name='Employee')
     
     if not User.query.first():
-        user_datastore.create_user(email='admin@codecraft.com', username="admin", password=hash_password('password'), roles=[admin_role, user_role], confirmed_at=datetime.datetime.now())
-        user_datastore.create_user(email='user@codecraft.com', username="user", password=hash_password('password'), roles=[user_role], confirmed_at=datetime.datetime.now())
+        user_datastore.create_user(username="admin", password=hash_password('password'), roles=[admin_role, user_role], confirmed_at=datetime.datetime.now())
+        user_datastore.create_user(username="user", password=hash_password('password'), roles=[user_role], confirmed_at=datetime.datetime.now())
     
     if Employee.query.count() < NR_OF_PERSON_TO_SEED:
         req = requests.get(f'https://randomuser.me/api/?results={NR_OF_PERSON_TO_SEED}&seed={SEED}')
@@ -87,18 +86,9 @@ def seed_data():
             
             #  Add employee to the database
             db.session.add(new_employee)
-            
-            username = employee['email'].split('@')[0]
-            codecraft_mail = username + '@codecraft.com'
-            hashed_password = hash_password('password')
-            user = user_datastore.create_user(email=codecraft_mail, username=username, password=hashed_password, roles=[employee_role], confirmed_at=datetime.datetime.now())
-            
-            # Associate the user with the employee
-            user.employee = new_employee
-            
-            # Commit changes to the database
             db.session.commit()
             
+            # Add pictures for employees
             for key,val in employee['picture'].items():
                 p = EmployeePicture(
                         picture_size = key,
