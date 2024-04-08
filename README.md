@@ -21,7 +21,7 @@ LOCAL_DATABASE_URI = "database.sqlite"
 ```
 ## Create .flaskenv file for environment variables
 ```python
-FLASK_APP = CodeCraftDatabase
+FLASK_APP = CodeCraft
 FLASK_DEBUG = True
 FLASK_PORT = 5000
 ```
