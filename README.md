@@ -49,3 +49,11 @@ $ flask init-db
 $ flask run 
 ```
 
+# To test the protected routes
+Register a new user
+
+## To access '/dashboard'
+Login with your username and password
+
+## To access '/admin'
+Login with the username 'admin' and password 'password'

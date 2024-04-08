@@ -91,7 +91,7 @@ def create_app(test_config=None):
     @app.route("/register", methods=["GET", "POST"])
     def register():
         if request.method == "POST":
-            username = request.form.get("username")
+            username = request.form.get("username").lower()
             password = request.form.get("password")
             existing_user = User.query.filter_by(username=username).first()
             
@@ -106,6 +106,7 @@ def create_app(test_config=None):
                     fs_uniquifier=fs_uniquifier,  # Provide the generated uniquifier
                     confirmed_at=datetime.datetime.now(),
                 )
+                db.session.add(new_user)
                 db.session.commit()
                 flash(f"Welcome to CodeCraft! Please login to continue.")
                 return redirect(url_for("security.login"))
