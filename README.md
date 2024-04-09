@@ -18,7 +18,10 @@ $ pip install -r requirements.txt
 ## Create a .env file 
 ```python
 LOCAL_DATABASE_URI = "database.sqlite"
+SECRET_KEY="SECRET_KEY"
+SECURITY_PASSWORD_SALT="SECURITY_PASSWORD_SALT"
 ```
+
 ## Create .flaskenv file for environment variables
 ```python
 FLASK_APP = CodeCraft
