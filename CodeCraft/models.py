@@ -1,4 +1,3 @@
-from operator import index
 import requests
 from flask_sqlalchemy import SQLAlchemy
 from flask_security import RoleMixin, UserMixin, SQLAlchemyUserDatastore, hash_password

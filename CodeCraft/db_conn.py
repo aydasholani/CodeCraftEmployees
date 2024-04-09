@@ -1,6 +1,6 @@
 import click
 from flask import g
-from .models import db, seed_data, user_datastore
+from .models import db, seed_data
 
 def get_db():
     if not hasattr(g, "db"):

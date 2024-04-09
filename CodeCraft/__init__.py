@@ -1,27 +1,17 @@
 import datetime
 import os
 import secrets
-from flask import (
-    Flask,
-    flash,
-    redirect,
-    render_template,
-    request,
-    url_for,
-    session,
-)
-from . import db_conn
+from flask import Flask, flash,redirect,render_template, request,url_for, session
+from . import db_conn 
 from .models import user_datastore, Employee, User, db
 from .employees import get_paginated_employees, get_employee_pictures
-from flask_security import (
-    Security,
-    hash_password,
-    login_required,
-    logout_user,
-    roles_required,
-    uia_username_mapper,
-)
+from flask_security import Security, hash_password, login_required,logout_user, roles_required, uia_username_mapper
+
 import flask_babel
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def create_app(test_config=None):
